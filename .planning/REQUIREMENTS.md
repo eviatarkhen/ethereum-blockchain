@@ -40,8 +40,8 @@
 
 ### Contracts
 
-- [ ] **CNTR-01**: Hardcoded counter contract (increment, get count)
-- [ ] **CNTR-02**: Hardcoded simple token contract (transfer, balance check)
+- [x] **CNTR-01**: Hardcoded counter contract (increment, get count)
+- [x] **CNTR-02**: Hardcoded simple token contract (transfer, balance check)
 
 ### Learning Interface
 
@@ -102,8 +102,8 @@
 | STATE-04 | Phase 3 | Pending |
 | LEARN-04 | Phase 3 | Pending |
 | LEARN-05 | Phase 3 | Pending |
-| CNTR-01 | Phase 4 | Pending |
-| CNTR-02 | Phase 4 | Pending |
+| CNTR-01 | Phase 4 | Complete |
+| CNTR-02 | Phase 4 | Complete |
 | LEARN-01 | Phase 4 | Pending |
 | LEARN-02 | Phase 4 | Pending |
 | LEARN-03 | Phase 4 | Pending |
