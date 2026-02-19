@@ -45,9 +45,9 @@
 
 ### Learning Interface
 
-- [ ] **LEARN-01**: Scenario script: simple ETH transfer end-to-end
-- [ ] **LEARN-02**: Scenario script: deploy and interact with counter contract
-- [ ] **LEARN-03**: Scenario script: deploy and interact with token contract
+- [x] **LEARN-01**: Scenario script: simple ETH transfer end-to-end
+- [x] **LEARN-02**: Scenario script: deploy and interact with counter contract
+- [x] **LEARN-03**: Scenario script: deploy and interact with token contract
 - [ ] **LEARN-04**: `# SIMPLIFIED:` comment convention marking all deviations from real Ethereum
 - [ ] **LEARN-05**: Readable code with meaningful variable names for debugger inspection
 
@@ -104,9 +104,9 @@
 | LEARN-05 | Phase 3 | Pending |
 | CNTR-01 | Phase 4 | Complete |
 | CNTR-02 | Phase 4 | Complete |
-| LEARN-01 | Phase 4 | Pending |
-| LEARN-02 | Phase 4 | Pending |
-| LEARN-03 | Phase 4 | Pending |
+| LEARN-01 | Phase 4 | Complete |
+| LEARN-02 | Phase 4 | Complete |
+| LEARN-03 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 25 total
