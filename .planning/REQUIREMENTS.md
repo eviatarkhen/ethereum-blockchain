@@ -82,37 +82,37 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CRYPT-01 | — | Pending |
-| CRYPT-02 | — | Pending |
-| CRYPT-03 | — | Pending |
-| CRYPT-04 | — | Pending |
-| STATE-01 | — | Pending |
-| STATE-02 | — | Pending |
-| STATE-03 | — | Pending |
-| STATE-04 | — | Pending |
-| EVM-01 | — | Pending |
-| EVM-02 | — | Pending |
-| EVM-03 | — | Pending |
-| EVM-04 | — | Pending |
-| TX-01 | — | Pending |
-| TX-02 | — | Pending |
-| TX-03 | — | Pending |
-| BLOCK-01 | — | Pending |
-| BLOCK-02 | — | Pending |
-| BLOCK-03 | — | Pending |
-| CNTR-01 | — | Pending |
-| CNTR-02 | — | Pending |
-| LEARN-01 | — | Pending |
-| LEARN-02 | — | Pending |
-| LEARN-03 | — | Pending |
-| LEARN-04 | — | Pending |
-| LEARN-05 | — | Pending |
+| CRYPT-01 | Phase 1 | Pending |
+| CRYPT-02 | Phase 1 | Pending |
+| CRYPT-03 | Phase 1 | Pending |
+| CRYPT-04 | Phase 1 | Pending |
+| STATE-01 | Phase 2 | Pending |
+| STATE-02 | Phase 2 | Pending |
+| STATE-03 | Phase 2 | Pending |
+| TX-01 | Phase 2 | Pending |
+| TX-02 | Phase 2 | Pending |
+| BLOCK-01 | Phase 2 | Pending |
+| BLOCK-02 | Phase 2 | Pending |
+| BLOCK-03 | Phase 2 | Pending |
+| EVM-01 | Phase 3 | Pending |
+| EVM-02 | Phase 3 | Pending |
+| EVM-03 | Phase 3 | Pending |
+| EVM-04 | Phase 3 | Pending |
+| TX-03 | Phase 3 | Pending |
+| STATE-04 | Phase 3 | Pending |
+| LEARN-04 | Phase 3 | Pending |
+| LEARN-05 | Phase 3 | Pending |
+| CNTR-01 | Phase 4 | Pending |
+| CNTR-02 | Phase 4 | Pending |
+| LEARN-01 | Phase 4 | Pending |
+| LEARN-02 | Phase 4 | Pending |
+| LEARN-03 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 25 total
-- Mapped to phases: 0
-- Unmapped: 25 ⚠️
+- Mapped to phases: 25
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-19*
-*Last updated: 2026-02-19 after initial definition*
+*Last updated: 2026-02-19 after roadmap creation — all 25 requirements mapped*
