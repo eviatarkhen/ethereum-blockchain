@@ -792,30 +792,188 @@ class EVM:
         self.stopped = True
         self.reverted = True
 
-    # === Contract (stubs for Plan 03-03) ===
+    # === Contract Operations ===
 
     def _op_create(self) -> None:
         """CREATE (0xF0): Deploy a new contract.
 
-        # TODO: Full implementation in Plan 03-03.
-        # SIMPLIFIED: Stub that pushes 0 (failure) for now.
+        Stack: [value, offset, size, ...] -> [address, ...]
+
+        Reads init code from memory, deploys a new contract, and pushes
+        the new contract address on success (0 on failure).
+
+        # SIMPLIFIED: No EIP-3860 init code size limit (48KB max).
+        # SIMPLIFIED: Forward all remaining gas to init code.
+        # Real Ethereum uses EIP-150 (63/64 rule).
+        # SIMPLIFIED: No code deposit cost (200 gas per byte).
         """
-        _value = self._stack_pop()
-        _offset = self._stack_pop()
-        _size = self._stack_pop()
-        self._stack_push(0)  # Stub: always fails
+        from ethereum.core.address import compute_contract_address
+
+        value = self._stack_pop()
+        offset = self._stack_pop()
+        size = self._stack_pop()
+
+        if self.world_state is None:
+            self._stack_push(0)  # No world state, cannot create
+            return
+
+        # Read init code from memory
+        init_code = self.memory.read_range(offset, size)
+
+        # Compute contract address from current contract's address and nonce
+        creator_account = self.world_state.get_account(self.context.address)
+        contract_address = compute_contract_address(
+            self.context.address, creator_account.nonce
+        )
+
+        # Increment creator's nonce
+        self.world_state.increment_nonce(self.context.address)
+
+        # Create the new account
+        self.world_state.add_balance(contract_address, 0)
+
+        # Transfer value if specified
+        if value > 0:
+            try:
+                self.world_state.transfer(self.context.address, contract_address, value)
+            except ValueError:
+                self._stack_push(0)
+                return
+
+        # Run init code
+        context = ExecutionContext(
+            caller=self.context.address,
+            address=contract_address,
+            value=value,
+            data=b"",
+            gas=self.gas_remaining,
+        )
+
+        evm = EVM(
+            code=init_code,
+            context=context,
+            storage={},
+            world_state=self.world_state,
+        )
+
+        try:
+            result = evm.execute()
+        except OutOfGas:
+            self._stack_push(0)
+            return
+
+        if result.success:
+            # Store return data as runtime code
+            self.world_state.set_code(contract_address, result.return_data)
+            # Persist storage changes
+            for key, val in evm.storage.items():
+                self.world_state.set_storage(contract_address, key, val)
+            # Deduct gas used by child, refund remaining
+            self.gas_remaining -= result.gas_used
+            # Push contract address as uint256
+            self._stack_push(int.from_bytes(contract_address, "big"))
+        else:
+            self.gas_remaining -= result.gas_used
+            self._stack_push(0)
 
     def _op_call(self) -> None:
         """CALL (0xF1): Call another contract.
 
-        # TODO: Full implementation in Plan 03-03.
-        # SIMPLIFIED: Stub that pushes 0 (failure) for now.
+        Stack: [gas, addr, value, argsOffset, argsLength, retOffset, retLength, ...]
+               -> [success, ...]
+
+        Calls the contract at addr with the given gas, value, and calldata.
+        Writes return data to caller's memory. Pushes 1 on success, 0 on failure.
+
+        # SIMPLIFIED: Forward exact requested gas (no EIP-150 63/64 rule).
+        # SIMPLIFIED: No DELEGATECALL or STATICCALL.
+        # SIMPLIFIED: No stipend (2300 gas) for value transfers.
         """
-        _gas = self._stack_pop()
-        _addr = self._stack_pop()
-        _value = self._stack_pop()
-        _args_offset = self._stack_pop()
-        _args_length = self._stack_pop()
-        _ret_offset = self._stack_pop()
-        _ret_length = self._stack_pop()
-        self._stack_push(0)  # Stub: always fails
+        gas = self._stack_pop()
+        addr_int = self._stack_pop()
+        value = self._stack_pop()
+        args_offset = self._stack_pop()
+        args_length = self._stack_pop()
+        ret_offset = self._stack_pop()
+        ret_length = self._stack_pop()
+
+        if self.world_state is None:
+            self._stack_push(0)
+            return
+
+        # Convert address from uint256 to 20-byte bytes
+        target_address = addr_int.to_bytes(32, "big")[12:]
+
+        # Cap gas at remaining
+        forwarded_gas = min(gas, self.gas_remaining)
+
+        # Read calldata from memory
+        input_data = b""
+        if args_length > 0:
+            input_data = self.memory.read_range(args_offset, args_length)
+
+        # Get target account
+        target_account = self.world_state.get_account(target_address)
+
+        # Transfer value first (before execution)
+        if value > 0:
+            try:
+                self.world_state.transfer(self.context.address, target_address, value)
+            except ValueError:
+                self._stack_push(0)
+                return
+
+        # If target has no code (EOA), it's just a value transfer
+        if not target_account.code:
+            self.gas_remaining -= forwarded_gas  # Consume forwarded gas
+            self.gas_remaining += forwarded_gas   # Refund all (no execution)
+            self._stack_push(1)  # Success
+            return
+
+        # Execute target code
+        context = ExecutionContext(
+            caller=self.context.address,
+            address=target_address,
+            value=value,
+            data=input_data,
+            gas=forwarded_gas,
+        )
+
+        # Load target's storage
+        target_storage = dict(target_account.storage)
+
+        evm = EVM(
+            code=target_account.code,
+            context=context,
+            storage=target_storage,
+            world_state=self.world_state,
+        )
+
+        try:
+            result = evm.execute()
+        except OutOfGas:
+            # Callee ran out of gas -- caller continues
+            self.gas_remaining -= forwarded_gas  # All forwarded gas consumed
+            self._stack_push(0)
+            return
+
+        if result.success:
+            # Persist storage changes
+            for key, val in evm.storage.items():
+                self.world_state.set_storage(target_address, key, val)
+
+            # Write return data to caller's memory
+            if ret_length > 0 and result.return_data:
+                write_data = result.return_data[:ret_length]
+                # Pad if return data is shorter than ret_length
+                if len(write_data) < ret_length:
+                    write_data += b'\x00' * (ret_length - len(write_data))
+                self.memory.write_range(ret_offset, write_data)
+
+            # Deduct gas used, refund remaining
+            self.gas_remaining -= result.gas_used
+            self._stack_push(1)
+        else:
+            # Failed: consume all forwarded gas
+            self.gas_remaining -= forwarded_gas
+            self._stack_push(0)

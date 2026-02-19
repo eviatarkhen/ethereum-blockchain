@@ -21,6 +21,7 @@ Flow:
 
 from dataclasses import dataclass
 
+from ethereum.core.address import compute_contract_address
 from ethereum.core.tx_validator import validate_transaction, calculate_intrinsic_gas
 from ethereum.evm.vm import EVM, ExecutionContext, ExecutionResult
 from ethereum.evm.exceptions import OutOfGas, EVMError
@@ -246,13 +247,79 @@ def _execute_create(tx, sender: bytes, world_state,
                     gas_available: int) -> ExecutionResult:
     """Execute contract creation (to is empty).
 
-    Placeholder for Plan 03-03. Currently returns failure.
+    Deploys a new contract by:
+    1. Computing the contract address from sender + nonce
+    2. Creating a new account at that address
+    3. Transferring value if tx.value > 0
+    4. Running the init code (tx.data) in the EVM
+    5. Storing the return data as the contract's runtime code
 
-    # TODO: Full implementation in Plan 03-03.
+    The contract address is deterministic:
+    address = keccak256(rlp([sender, nonce]))[12:]
+
+    # SIMPLIFIED: No EIP-3860 init code size limit (48KB max).
+    # SIMPLIFIED: No code deposit cost validation (real: 200 gas per byte).
+    # SIMPLIFIED: Forward all remaining gas to init code.
+    # Real Ethereum uses EIP-150 (63/64 rule).
+
+    Args:
+        tx: Transaction with init code in data field.
+        sender: 20-byte sender address.
+        world_state: World state to modify.
+        gas_available: Gas available for EVM execution.
+
+    Returns:
+        ExecutionResult with contract_address attribute added.
     """
-    return ExecutionResult(
-        success=False,
-        return_data=b"",
-        gas_used=gas_available,
-        gas_remaining=0,
+    # Compute contract address using sender nonce BEFORE increment
+    # (nonce was already incremented in apply_transaction step 4,
+    # so we use tx.nonce which is the original nonce)
+    contract_address = compute_contract_address(sender, tx.nonce)
+
+    # Create the new account
+    world_state.add_balance(contract_address, 0)  # Ensure account exists
+
+    # Transfer value if specified
+    if tx.value > 0:
+        world_state.transfer(sender, contract_address, tx.value)
+
+    # Run init code in the EVM
+    context = ExecutionContext(
+        caller=sender,
+        address=contract_address,
+        value=tx.value,
+        data=b"",  # Init code gets no calldata
+        gas=gas_available,
     )
+
+    evm = EVM(
+        code=tx.data,  # Init code is in the transaction data field
+        context=context,
+        storage={},
+        world_state=world_state,
+    )
+
+    try:
+        result = evm.execute()
+    except OutOfGas:
+        result = ExecutionResult(
+            success=False,
+            return_data=b"",
+            gas_used=gas_available,
+            gas_remaining=0,
+        )
+        result.contract_address = None
+        return result
+
+    # If successful, store return data as runtime code
+    if result.success:
+        runtime_code = result.return_data
+        world_state.set_code(contract_address, runtime_code)
+
+        # Persist storage changes from constructor
+        for key, value in evm.storage.items():
+            world_state.set_storage(contract_address, key, value)
+
+    # Attach contract_address to result for TransactionResult
+    result.contract_address = contract_address if result.success else None
+    return result

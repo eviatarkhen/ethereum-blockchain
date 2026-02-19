@@ -4,6 +4,7 @@ Provides transaction validation and the state transition function
 that orchestrates validation, EVM execution, and state commit/rollback.
 """
 
+from ethereum.core.address import compute_contract_address
 from ethereum.core.tx_validator import validate_transaction, calculate_intrinsic_gas
 from ethereum.core.state_transition import apply_transaction, TransactionResult
 from ethereum.core.exceptions import (
@@ -16,6 +17,7 @@ from ethereum.core.exceptions import (
 )
 
 __all__ = [
+    "compute_contract_address",
     "validate_transaction",
     "calculate_intrinsic_gas",
     "apply_transaction",
