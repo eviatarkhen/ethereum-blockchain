@@ -7,10 +7,10 @@
 
 ### Crypto & Encoding
 
-- [ ] **CRYPT-01**: Keccak-256 hashing using eth-hash (not hashlib.sha3_256)
-- [ ] **CRYPT-02**: ECDSA key pair generation and transaction signing
+- [x] **CRYPT-01**: Keccak-256 hashing using eth-hash (not hashlib.sha3_256)
+- [x] **CRYPT-02**: ECDSA key pair generation and transaction signing
 - [ ] **CRYPT-03**: RLP encoding/decoding for transactions and blocks
-- [ ] **CRYPT-04**: Ethereum address derivation from public key
+- [x] **CRYPT-04**: Ethereum address derivation from public key
 
 ### State
 
@@ -82,10 +82,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CRYPT-01 | Phase 1 | Pending |
-| CRYPT-02 | Phase 1 | Pending |
+| CRYPT-01 | Phase 1 | Complete |
+| CRYPT-02 | Phase 1 | Complete |
 | CRYPT-03 | Phase 1 | Pending |
-| CRYPT-04 | Phase 1 | Pending |
+| CRYPT-04 | Phase 1 | Complete |
 | STATE-01 | Phase 2 | Pending |
 | STATE-02 | Phase 2 | Pending |
 | STATE-03 | Phase 2 | Pending |
