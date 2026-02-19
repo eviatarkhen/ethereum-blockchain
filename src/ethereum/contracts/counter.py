@@ -9,6 +9,10 @@ Counter implements two functions:
 # to shift the 32-byte CALLDATALOAD result right by 28 bytes (224 bits), leaving
 # the 4-byte selector as a uint256.
 #
+# Stack order for DIV: push PUSH32(2^224) FIRST, then PUSH1/CALLDATALOAD.
+# EVM DIV pops 'a' (top) then 'b' (second): result = a // b.
+# So: top=CALLDATALOAD_result, second=2^224 -> result = calldata_word // 2^224 = selector.
+#
 # 2^224 in 32-byte big-endian: 0x00000001 followed by 28 zero bytes.
 # Dividing a 32-byte value by 2^224 drops the lower 28 bytes, yielding the upper 4 bytes.
 """
@@ -20,10 +24,10 @@ from ethereum.contracts.abi import compute_selector
 #
 #  Offset | Size | Instruction        | Notes
 # --------|------|--------------------|---------------------------
-#   0     |  2   | PUSH1 0x00         | calldata offset
-#   2     |  1   | CALLDATALOAD       | load 32 bytes of calldata
-#   3     | 33   | PUSH32 <2^224>     | divisor = 2^224
-#  36     |  1   | DIV                | selector = calldata_word / 2^224
+#   0     | 33   | PUSH32 <2^224>     | divisor pushed first (second on stack under CALLDATALOAD)
+#  33     |  2   | PUSH1 0x00         | calldata offset
+#  35     |  1   | CALLDATALOAD       | load 32 bytes of calldata (now on TOP of stack)
+#  36     |  1   | DIV                | selector = calldata_word // 2^224  (top // second)
 #  37     |  1   | DUP1               | duplicate selector for first compare
 #  38     |  5   | PUSH4 d09de08a     | increment() selector
 #  43     |  1   | EQ                 |
@@ -65,10 +69,9 @@ from ethereum.contracts.abi import compute_selector
 # fmt: off
 COUNTER_RUNTIME_BYTECODE = bytes([
     # --- Function dispatcher ---
-    0x60, 0x00,              # PUSH1 0x00         — push calldata offset 0
-    0x35,                    # CALLDATALOAD       — load 32 bytes from calldata[0]
-    # PUSH32: 2^224 in big-endian = 0x00000001 followed by 28 zero bytes.
-    # Dividing CALLDATALOAD result by 2^224 right-shifts 224 bits, yielding the 4-byte selector.
+    # PUSH32(2^224) first so it lands BELOW CALLDATALOAD on the stack.
+    # EVM DIV: a=pop() (CALLDATALOAD result, top), b=pop() (2^224, second).
+    # selector = a // b = calldata_word // 2^224 = upper 4 bytes of calldata.
     0x7F,                    # PUSH32             — next 32 bytes are the immediate value
     0x00, 0x00, 0x00, 0x01,  # 2^224 high word    — byte[0..3]: 0x00000001
     0x00, 0x00, 0x00, 0x00,  # 2^224 word 2       — byte[4..7]: zero
@@ -78,7 +81,9 @@ COUNTER_RUNTIME_BYTECODE = bytes([
     0x00, 0x00, 0x00, 0x00,  # 2^224 word 6       — byte[20..23]: zero
     0x00, 0x00, 0x00, 0x00,  # 2^224 word 7       — byte[24..27]: zero
     0x00, 0x00, 0x00, 0x00,  # 2^224 word 8       — byte[28..31]: zero
-    0x04,                    # DIV                — selector = calldata_word / 2^224
+    0x60, 0x00,              # PUSH1 0x00         — calldata offset 0
+    0x35,                    # CALLDATALOAD       — load 32 bytes from calldata[0] (now on TOP)
+    0x04,                    # DIV                — selector = calldata_word (top) // 2^224 (second)
     0x80,                    # DUP1               — duplicate selector for increment compare
     0x63, 0xd0, 0x9d, 0xe0, 0x8a,  # PUSH4 d09de08a  — increment() selector
     0x14,                    # EQ                 — check selector == increment

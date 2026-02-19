@@ -5,7 +5,9 @@ SimpleToken implements two functions:
   - balanceOf(address): returns the token balance for an address
 
 # DECISION: Using DIV-based selector extraction (SHR not available in this EVM).
-# Same pattern as counter.py — PUSH32(2^224)/DIV extracts the 4-byte selector.
+# Same pattern as counter.py — PUSH32(2^224) first, then PUSH1/CALLDATALOAD,
+# then DIV. EVM DIV pops 'a' (top = CALLDATALOAD result) then 'b' (second = 2^224):
+# selector = calldata_word // 2^224 = upper 4 bytes of calldata.
 
 # SIMPLIFIED: Real Solidity uses keccak256(abi.encode(address, slot)) for mapping keys.
 # We use the address itself as the storage key to avoid requiring the SHA3 opcode.
@@ -21,10 +23,10 @@ INITIAL_SUPPLY = 1_000_000  # Token units pre-minted to the deploying account
 # Bytecode layout (112 bytes total):
 #
 # --- Dispatcher (offsets 0-62, same pattern as Counter) ---
-#  0     |  2   | PUSH1 0x00        | calldata offset
-#  2     |  1   | CALLDATALOAD      | load 32 bytes from calldata[0]
-#  3     | 33   | PUSH32 <2^224>    | right-shift divisor
-# 36     |  1   | DIV               | selector = calldata_word / 2^224
+#  0     | 33   | PUSH32 <2^224>    | right-shift divisor pushed first
+# 33     |  2   | PUSH1 0x00        | calldata offset
+# 35     |  1   | CALLDATALOAD      | load 32 bytes from calldata[0] (TOP of stack)
+# 36     |  1   | DIV               | selector = calldata_word (top) // 2^224 (second)
 # 37     |  1   | DUP1              | duplicate for first compare
 # 38     |  5   | PUSH4 a9059cbb    | transfer(address,uint256) selector
 # 43     |  1   | EQ                |
@@ -119,9 +121,9 @@ INITIAL_SUPPLY = 1_000_000  # Token units pre-minted to the deploying account
 # fmt: off
 TOKEN_RUNTIME_BYTECODE = bytes([
     # --- Function dispatcher ---
-    0x60, 0x00,              # PUSH1 0x00         — push calldata offset 0
-    0x35,                    # CALLDATALOAD       — load 32 bytes from calldata[0]
-    # PUSH32: 2^224 in big-endian = 0x00000001 followed by 28 zero bytes
+    # PUSH32(2^224) first so it lands BELOW CALLDATALOAD on the stack.
+    # EVM DIV: a=pop() (CALLDATALOAD result, top), b=pop() (2^224, second).
+    # selector = a // b = calldata_word // 2^224 = upper 4 bytes of calldata.
     0x7F,                    # PUSH32             — next 32 bytes are the immediate value
     0x00, 0x00, 0x00, 0x01,  # 2^224 high word    — byte[0..3]: 0x00000001
     0x00, 0x00, 0x00, 0x00,  # 2^224 word 2       — byte[4..7]: zero
@@ -131,7 +133,9 @@ TOKEN_RUNTIME_BYTECODE = bytes([
     0x00, 0x00, 0x00, 0x00,  # 2^224 word 6       — byte[20..23]: zero
     0x00, 0x00, 0x00, 0x00,  # 2^224 word 7       — byte[24..27]: zero
     0x00, 0x00, 0x00, 0x00,  # 2^224 word 8       — byte[28..31]: zero
-    0x04,                    # DIV                — selector = calldata_word / 2^224
+    0x60, 0x00,              # PUSH1 0x00         — calldata offset 0
+    0x35,                    # CALLDATALOAD       — load 32 bytes from calldata[0] (now on TOP)
+    0x04,                    # DIV                — selector = calldata_word (top) // 2^224 (second)
     0x80,                    # DUP1               — duplicate selector for transfer compare
     0x63, 0xa9, 0x05, 0x9c, 0xbb,  # PUSH4 a9059cbb  — transfer(address,uint256) selector
     0x14,                    # EQ                 — check selector == transfer
