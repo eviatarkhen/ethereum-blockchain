@@ -70,7 +70,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Running the counter scenario script deploys the counter contract, calls increment, and reads back the updated count — all traceable via debugger
   3. Running the token scenario script deploys the token contract, transfers tokens between accounts, and confirms the updated balances
   4. A developer can set a breakpoint anywhere in a scenario script and inspect the full EVM state (stack, memory, storage, program counter, gas remaining) at that point
-**Plans**: TBD
+**Plans:** 2 plans
+- [ ] 04-01-PLAN.md — Hardcoded Counter and Token bytecode with ABI helpers and contract address derivation
+- [ ] 04-02-PLAN.md — Three scenario scripts: ETH transfer, counter deploy+interact, token deploy+interact
 
 ## Progress
 
