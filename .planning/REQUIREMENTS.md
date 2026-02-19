@@ -14,9 +14,9 @@
 
 ### State
 
-- [ ] **STATE-01**: Account model with balance, nonce, code hash, and storage
-- [ ] **STATE-02**: Dict-backed world state with get/set/update operations
-- [ ] **STATE-03**: Genesis state initialization with pre-funded accounts
+- [x] **STATE-01**: Account model with balance, nonce, code hash, and storage
+- [x] **STATE-02**: Dict-backed world state with get/set/update operations
+- [x] **STATE-03**: Genesis state initialization with pre-funded accounts
 - [ ] **STATE-04**: State transition function (apply transaction to world state)
 
 ### EVM
@@ -28,15 +28,15 @@
 
 ### Transactions
 
-- [ ] **TX-01**: Transaction structure (nonce, to, value, data, gas, signature)
-- [ ] **TX-02**: Transaction signing and sender recovery
+- [x] **TX-01**: Transaction structure (nonce, to, value, data, gas, signature)
+- [x] **TX-02**: Transaction signing and sender recovery
 - [ ] **TX-03**: Transaction validation (nonce check, balance check, gas limit)
 
 ### Blocks
 
-- [ ] **BLOCK-01**: Block structure (header with parent hash, state root, tx list)
-- [ ] **BLOCK-02**: Block creation / simplified mining (no PoW/PoS)
-- [ ] **BLOCK-03**: Chain management (append block, validate chain)
+- [x] **BLOCK-01**: Block structure (header with parent hash, state root, tx list)
+- [x] **BLOCK-02**: Block creation / simplified mining (no PoW/PoS)
+- [x] **BLOCK-03**: Chain management (append block, validate chain)
 
 ### Contracts
 
@@ -86,14 +86,14 @@
 | CRYPT-02 | Phase 1 | Complete |
 | CRYPT-03 | Phase 1 | Complete |
 | CRYPT-04 | Phase 1 | Complete |
-| STATE-01 | Phase 2 | Pending |
-| STATE-02 | Phase 2 | Pending |
-| STATE-03 | Phase 2 | Pending |
-| TX-01 | Phase 2 | Pending |
-| TX-02 | Phase 2 | Pending |
-| BLOCK-01 | Phase 2 | Pending |
-| BLOCK-02 | Phase 2 | Pending |
-| BLOCK-03 | Phase 2 | Pending |
+| STATE-01 | Phase 2 | Complete |
+| STATE-02 | Phase 2 | Complete |
+| STATE-03 | Phase 2 | Complete |
+| TX-01 | Phase 2 | Complete |
+| TX-02 | Phase 2 | Complete |
+| BLOCK-01 | Phase 2 | Complete |
+| BLOCK-02 | Phase 2 | Complete |
+| BLOCK-03 | Phase 2 | Complete |
 | EVM-01 | Phase 3 | Pending |
 | EVM-02 | Phase 3 | Pending |
 | EVM-03 | Phase 3 | Pending |
