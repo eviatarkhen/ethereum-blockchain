@@ -16,18 +16,19 @@ A developer can set breakpoints and trace the complete lifecycle of a transactio
 - ECDSA key generation, signing, and recovery (eth-keys) -- Phase 1
 - Ethereum address derivation from public key -- Phase 1
 - RLP encoding/decoding (from-scratch implementation) -- Phase 1
+- Account model with balances, nonces, and contract storage -- Phase 2
+- Transaction creation, signing, and validation -- Phase 2
+- Block structure with headers and transaction lists -- Phase 2
+- EVM with ~25 core opcodes (stack, memory, storage, flow control) -- Phase 3
+- Smart contract deployment (CREATE) and function calls (CALL) -- Phase 3
+- State transitions (applying transactions to world state) -- Phase 3
+- Pre-built example contracts (counter, simple token) in bytecode -- Phase 4
+- Python scenario scripts for guided exploration (transfer, deploy, call contract) -- Phase 4
+- Clear, readable code with meaningful variable names for debugger inspection -- Phase 3/4
 
 ### Active
 
-- [ ] Account model with balances, nonces, and contract storage
-- [ ] Transaction creation, signing, and validation
-- [ ] Block structure with headers and transaction lists
-- [ ] EVM with ~20-30 core opcodes (stack, memory, storage, flow control)
-- [ ] Smart contract deployment and function calls
-- [ ] State transitions (applying transactions to world state)
-- [ ] Pre-built example contracts (counter, simple token) in bytecode
-- [ ] Python scenario scripts for guided exploration (transfer, deploy, call contract)
-- [ ] Clear, readable code with meaningful variable names for debugger inspection
+None — all v1 requirements validated.
 
 ### Out of Scope
 
@@ -60,12 +61,14 @@ A developer can set breakpoints and trace the complete lifecycle of a transactio
 |----------|-----------|---------|
 | Python over Rust/Go | Debugger-friendly, readable, fast to build | Confirmed |
 | Single node | Eliminates P2P complexity, focus on core concepts | Confirmed |
-| Hardcoded contracts over compiler | Avoids compiler complexity, still shows full EVM flow | — Pending |
-| Scenario scripts over REPL | Guided learning paths, easy to set breakpoints | — Pending |
+| Hardcoded contracts over compiler | Avoids compiler complexity, still shows full EVM flow | Validated Phase 4 |
+| Scenario scripts over REPL | Guided learning paths, easy to set breakpoints | Validated Phase 4 |
 | eth-hash[pycryptodome] for Keccak-256 | Eliminates Keccak vs SHA-3 confusion, portable backend | Validated Phase 1 |
 | eth-keys NativeECCBackend for ECDSA | Pure Python, ideal for debugger stepping | Validated Phase 1 |
 | From-scratch RLP over pyrlp | Educational value -- specification is simple enough to implement | Validated Phase 1 |
-| MPT deferred to v2 | Dict-backed world state sufficient for v1 learning | — Pending |
+| MPT deferred to v2 | Dict-backed world state sufficient for v1 learning | Confirmed — v1 complete without MPT |
+| DIV-based selector extraction | SHR opcode not in Phase 3 EVM; DIV(calldata, 2^224) works | Validated Phase 4 |
+| Simplified storage mapping | address as storage key directly; avoids SHA3 opcode requirement | Validated Phase 4 |
 
 ---
-*Last updated: 2026-02-19 after Phase 1*
+*Last updated: 2026-02-19 after Phase 4 — v1 milestone complete*
