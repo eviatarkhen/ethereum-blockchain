@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A simplified, single-node Ethereum blockchain implementation in Python, built for learning. It covers the core Ethereum concepts — accounts, transactions, blocks, EVM execution, smart contracts, and Merkle Patricia Tries — with code designed to be stepped through with a debugger. Not a production system; a teaching tool.
+A simplified, single-node Ethereum blockchain implementation in Python, built for learning. It covers the core Ethereum concepts — accounts, transactions, blocks, EVM execution, and smart contracts — with code designed to be stepped through with a debugger. v1.0 shipped with 8,037 lines of Python across 49 files, including 3 runnable scenario scripts that demonstrate complete transaction lifecycles. Not a production system; a teaching tool.
 
 ## Core Value
 
@@ -10,25 +10,25 @@ A developer can set breakpoints and trace the complete lifecycle of a transactio
 
 ## Requirements
 
-### Validated
+### Validated (v1.0)
 
-- Keccak-256 hashing (eth-hash with pycryptodome backend) -- Phase 1
-- ECDSA key generation, signing, and recovery (eth-keys) -- Phase 1
-- Ethereum address derivation from public key -- Phase 1
-- RLP encoding/decoding (from-scratch implementation) -- Phase 1
-- Account model with balances, nonces, and contract storage -- Phase 2
-- Transaction creation, signing, and validation -- Phase 2
-- Block structure with headers and transaction lists -- Phase 2
-- EVM with ~25 core opcodes (stack, memory, storage, flow control) -- Phase 3
-- Smart contract deployment (CREATE) and function calls (CALL) -- Phase 3
-- State transitions (applying transactions to world state) -- Phase 3
-- Pre-built example contracts (counter, simple token) in bytecode -- Phase 4
-- Python scenario scripts for guided exploration (transfer, deploy, call contract) -- Phase 4
-- Clear, readable code with meaningful variable names for debugger inspection -- Phase 3/4
+- Keccak-256 hashing (eth-hash with pycryptodome backend) — v1.0
+- ECDSA key generation, signing, and recovery (eth-keys) — v1.0
+- Ethereum address derivation from public key — v1.0
+- RLP encoding/decoding (from-scratch implementation) — v1.0
+- Account model with balances, nonces, and contract storage — v1.0
+- Transaction creation, signing, and validation — v1.0
+- Block structure with headers and transaction lists — v1.0
+- EVM with ~25 core opcodes (stack, memory, storage, flow control) — v1.0
+- Smart contract deployment (CREATE) and function calls (CALL) — v1.0
+- State transitions (applying transactions to world state) — v1.0
+- Pre-built example contracts (counter, simple token) in bytecode — v1.0
+- Python scenario scripts for guided exploration (transfer, deploy, call contract) — v1.0
+- Clear, readable code with meaningful variable names for debugger inspection — v1.0
 
 ### Active
 
-None — all v1 requirements validated.
+None — planning for next milestone not started.
 
 ### Out of Scope
 
