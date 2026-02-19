@@ -12,7 +12,10 @@ A developer can set breakpoints and trace the complete lifecycle of a transactio
 
 ### Validated
 
-(None yet — ship to validate)
+- Keccak-256 hashing (eth-hash with pycryptodome backend) -- Phase 1
+- ECDSA key generation, signing, and recovery (eth-keys) -- Phase 1
+- Ethereum address derivation from public key -- Phase 1
+- RLP encoding/decoding (from-scratch implementation) -- Phase 1
 
 ### Active
 
@@ -21,8 +24,6 @@ A developer can set breakpoints and trace the complete lifecycle of a transactio
 - [ ] Block structure with headers and transaction lists
 - [ ] EVM with ~20-30 core opcodes (stack, memory, storage, flow control)
 - [ ] Smart contract deployment and function calls
-- [ ] Merkle Patricia Trie for state storage and verification
-- [ ] RLP encoding/decoding
 - [ ] State transitions (applying transactions to world state)
 - [ ] Pre-built example contracts (counter, simple token) in bytecode
 - [ ] Python scenario scripts for guided exploration (transfer, deploy, call contract)
@@ -57,10 +58,14 @@ A developer can set breakpoints and trace the complete lifecycle of a transactio
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Python over Rust/Go | Debugger-friendly, readable, fast to build | — Pending |
-| Single node | Eliminates P2P complexity, focus on core concepts | — Pending |
+| Python over Rust/Go | Debugger-friendly, readable, fast to build | Confirmed |
+| Single node | Eliminates P2P complexity, focus on core concepts | Confirmed |
 | Hardcoded contracts over compiler | Avoids compiler complexity, still shows full EVM flow | — Pending |
 | Scenario scripts over REPL | Guided learning paths, easy to set breakpoints | — Pending |
+| eth-hash[pycryptodome] for Keccak-256 | Eliminates Keccak vs SHA-3 confusion, portable backend | Validated Phase 1 |
+| eth-keys NativeECCBackend for ECDSA | Pure Python, ideal for debugger stepping | Validated Phase 1 |
+| From-scratch RLP over pyrlp | Educational value -- specification is simple enough to implement | Validated Phase 1 |
+| MPT deferred to v2 | Dict-backed world state sufficient for v1 learning | — Pending |
 
 ---
-*Last updated: 2026-02-19 after initialization*
+*Last updated: 2026-02-19 after Phase 1*
