@@ -96,6 +96,112 @@ class WorldState:
         modifier(account)
         self.set_account(address, account)
 
+    def snapshot(self) -> dict[bytes, Account]:
+        """Take a deep copy of the current state for potential rollback.
+
+        Used by the state transition function before executing a transaction.
+        If execution fails (out-of-gas, revert), the state can be restored
+        to this snapshot.
+
+        Returns:
+            Deep copy of the accounts dictionary.
+        """
+        return copy.deepcopy(self._accounts)
+
+    def revert(self, snapshot: dict[bytes, Account]) -> None:
+        """Restore state from a previous snapshot.
+
+        Replaces the entire accounts dictionary with the snapshot.
+        Used when a transaction fails and state must be rolled back.
+
+        Args:
+            snapshot: Previously captured state from snapshot().
+        """
+        self._accounts = snapshot
+
+    def add_balance(self, address: bytes, amount: int) -> None:
+        """Add to account balance. Creates account if it doesn't exist.
+
+        Args:
+            address: 20-byte Ethereum address.
+            amount: Wei to add.
+        """
+        self.modify_account(address, lambda a: setattr(a, 'balance', a.balance + amount))
+
+    def deduct_balance(self, address: bytes, amount: int) -> None:
+        """Deduct from account balance.
+
+        Args:
+            address: 20-byte Ethereum address.
+            amount: Wei to deduct.
+
+        Raises:
+            ValueError: If balance would go negative.
+        """
+        account = self.get_account(address)
+        if account.balance < amount:
+            raise ValueError(
+                f"Cannot deduct {amount} from balance {account.balance}"
+            )
+        self.modify_account(address, lambda a: setattr(a, 'balance', a.balance - amount))
+
+    def increment_nonce(self, address: bytes) -> None:
+        """Increment account nonce by 1.
+
+        Args:
+            address: 20-byte Ethereum address.
+        """
+        self.modify_account(address, lambda a: setattr(a, 'nonce', a.nonce + 1))
+
+    def transfer(self, sender: bytes, recipient: bytes, amount: int) -> None:
+        """Transfer value from sender to recipient.
+
+        Creates recipient account if it doesn't exist.
+
+        Args:
+            sender: 20-byte sender address.
+            recipient: 20-byte recipient address.
+            amount: Wei to transfer.
+        """
+        if amount == 0:
+            return
+        self.deduct_balance(sender, amount)
+        self.add_balance(recipient, amount)
+
+    def set_code(self, address: bytes, code: bytes) -> None:
+        """Set contract code at address.
+
+        Args:
+            address: 20-byte contract address.
+            code: Runtime bytecode.
+        """
+        self.modify_account(address, lambda a: setattr(a, 'code', code))
+
+    def get_storage(self, address: bytes, key: int) -> int:
+        """Get a storage value for an account.
+
+        Args:
+            address: 20-byte contract address.
+            key: Storage slot key (uint256).
+
+        Returns:
+            Storage value, or 0 if not set.
+        """
+        account = self.get_account(address)
+        return account.storage.get(key, 0)
+
+    def set_storage(self, address: bytes, key: int, value: int) -> None:
+        """Set a storage value for an account.
+
+        Args:
+            address: 20-byte contract address.
+            key: Storage slot key (uint256).
+            value: Value to store (uint256).
+        """
+        def _set_storage(a):
+            a.storage[key] = value
+        self.modify_account(address, _set_storage)
+
     def state_root_placeholder(self) -> bytes:
         """Compute a deterministic 32-byte hash of the current state.
 
