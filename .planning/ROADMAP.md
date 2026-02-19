@@ -56,7 +56,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A transaction is validated in the correct Yellow Paper order (signature, nonce, balance, intrinsic gas) before any state mutation occurs
   4. The state transition function applies a value transfer transaction to world state, updating sender and recipient balances and incrementing sender nonce
   5. Every intentional deviation from real Ethereum is marked with a `# SIMPLIFIED:` comment, and all variable names are meaningful for debugger inspection
-**Plans**: TBD
+**Plans:** 3 plans
+- [ ] 03-01-PLAN.md — EVM stack machine with ~25 opcodes and gas metering (TDD)
+- [ ] 03-02-PLAN.md — Transaction validation and state transition function (TDD)
+- [ ] 03-03-PLAN.md — CREATE and CALL opcodes for contract deployment and calls (TDD)
 
 ### Phase 4: Contracts and Scenarios
 **Goal**: A developer can run scenario scripts that demonstrate the full transaction lifecycle — ETH transfer, contract deployment, and contract interaction — and set breakpoints at any step
