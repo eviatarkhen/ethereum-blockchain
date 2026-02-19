@@ -28,7 +28,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. A generated key pair can sign a message and the signature can recover the original address
   3. An Ethereum address can be derived from a public key and matches the expected 20-byte, 0x-prefixed format
   4. RLP encode/decode round-trips correctly for integers, byte strings, and nested lists, including the `0 encodes as 0x80` edge case
-**Plans**: TBD
+**Plans:** 2 plans
+- [ ] 01-01-PLAN.md — Keccak-256 hashing, ECDSA keys, and address derivation (TDD)
+- [ ] 01-02-PLAN.md — RLP encoding/decoding from scratch (TDD)
 
 ### Phase 2: State and Data Structures
 **Goal**: The account model, world state, transaction structure, and block structure exist as correct Python dataclasses with genesis initialization
@@ -71,7 +73,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Crypto and Encoding | 0/? | Not started | - |
+| 1. Crypto and Encoding | 0/2 | Planned | - |
 | 2. State and Data Structures | 0/? | Not started | - |
 | 3. EVM and Execution Engine | 0/? | Not started | - |
 | 4. Contracts and Scenarios | 0/? | Not started | - |
