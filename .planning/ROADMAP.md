@@ -41,7 +41,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. A transaction can be created, signed with a private key, and the original sender address recovered from the signature
   3. A block can be created with a header (parent hash, state root placeholder, timestamp) and a list of signed transactions
   4. The blockchain can append a new block and validate that the chain links correctly via parent hashes
-**Plans**: TBD
+**Plans:** 3 plans
+- [ ] 02-01-PLAN.md — Account model and dict-backed world state with genesis initialization (TDD)
+- [ ] 02-02-PLAN.md — Transaction structure with signing and sender recovery (TDD)
+- [ ] 02-03-PLAN.md — Block structure and blockchain chain management (TDD)
 
 ### Phase 3: EVM and Execution Engine
 **Goal**: The EVM executes bytecode correctly against real world state, gas is tracked and enforced, and all code is written to the readability and annotation standard
